@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TensorFlow JS Intro</title>
+        <!--Bring Needed JS Libraries -->
+        <script src="tf.min.js"></script>
+        <script src="chart.min.js"></script>
+    </head>
+    <body>
+        <center>
+            <h2>Simple TensorFlow Program with TensorFlow.js</h2>
+        <div style="padding: 50px;max-width:80%;border:3px double">
+            
+            <input type="number" id="x" />
+            <input type="button" value="Submit" id="append" />
+            
+            <hr />
+            
+            <canvas id="myChart" width="640" height="480"></canvas>
+            
+        </div>
+        </center>
+       <script>
+        var xs = []; // starts empty, to be populated with .push
+        var ys = []; // starts empty, to be populated with .push
+        var bestfit = []; // to be populated by tf.js
+
+        //Create the model
+        const model = tf.sequential();
+        
+        model.add(tf.layers.dense({units: 128, inputShape: [1]})); // layer 1
+        model.add(tf.layers.dense({units: 128, inputShape: [128], activation: "sigmoid"})); // layer 2
+        model.add(tf.layers.dense({units: 1, inputShape: [128]})); // output layer
+           
+        model.compile({loss: 'meanSquaredError', optimizer: 'adam'}); // compile with params
+
+
+        document.getElementById('x').value = Math.ceil(Math.random() * 10); // Createa random value for x
+
+        // the append id is given to our submit button, this will be called
+        document.getElementById("append").onclick = function(){
+            var x = parseInt(document.getElementById('x').value); // grab the current value for x
+            var y = 2 * x + 1; // calculate corresponding value for y using y = 2x + 1
+            
+            xs.push(x) // append that value to the xs
+            ys.push(y) // append that value to the ys
+            
+            document.getElementById('x').value = Math.ceil(Math.random() * 10); // generate another value for x automatically
+
+            // Train the model...then:
+            model.fit(tf.tensor(xs), tf.tensor(ys), {epochs:250}).then(() => {
+            
+                bestfit = model.predict(tf.tensor(xs, [xs.length, 1])).dataSync(); // create best-fit line from xs data
+                
+                var ctx = document.getElementById("myChart").getContext('2d'); // begin chart
+                
+                // Chart data and settings:
+                var myChart = new Chart(ctx, {
+                    type: 'line',
+                    options: {scales:{yAxes: [{ticks: {beginAtZero: true}}]}},
+                    data: {
+                        labels: xs,
+                        datasets: [
+                        {
+                            label: 'Original Data',
+                            data: ys,
+                            borderWidth: 1,
+                        },{
+                            label: 'Best Fit line',
+                            data: bestfit,
+                            borderWidth: 1,
+                            borderColor: '#FF0000',
+                            backgroundColor: 'rgba(1,1,1,0)'
+                        },]
+                    },
+                });
+              });
+        }
+    </script>
+    </body>
+    
+</html>
+    
