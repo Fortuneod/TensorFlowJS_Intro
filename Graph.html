@@ -13,7 +13,8 @@
             
             <input type="number" id="x" />
             <input type="button" value="Submit" id="append" />
-            
+            <br>
+            <p id="resp"></p>
             <hr />
             
             <canvas id="myChart" width="640" height="480"></canvas>
@@ -41,6 +42,8 @@
         document.getElementById("append").onclick = function(){
             var x = parseInt(document.getElementById('x').value); // grab the current value for x
             var y = 2 * x + 1; // calculate corresponding value for y using y = 2x + 1
+
+            document.getElementById('resp').innerText = " Working...";
             
             xs.push(x) // append that value to the xs
             ys.push(y) // append that value to the ys
@@ -74,6 +77,7 @@
                         },]
                     },
                 });
+                document.getElementById('resp').innerText = "Done";
               });
         }
     </script>
